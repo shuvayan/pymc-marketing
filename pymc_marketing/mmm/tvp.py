@@ -173,7 +173,7 @@ def time_varying_prior(
         hsgp_dims = (dims[1], "m")
 
     gp = pm.gp.HSGP(m=[m], L=[L], cov_func=cov_func)
-    phi, sqrt_psd = gp.prior_linearized(Xs=X[:, None] - X_mid)
+    phi, sqrt_psd = gp.prior_linearized(X=X[:, None] - X_mid)
     hsgp_coefs = pm.Normal(f"{name}_hsgp_coefs", dims=hsgp_dims)
     f = phi @ (hsgp_coefs * sqrt_psd).T
     f = pt.softplus(f)
@@ -230,7 +230,6 @@ def create_time_varying_gp_multiplier(
     )
     return multiplier
 
-
 def infer_time_index(
     date_series_new: pd.Series, date_series: pd.Series, time_resolution: int
 ) -> npt.NDArray[np.int_]:
@@ -238,4 +237,4 @@ def infer_time_index(
 
     Infers the time-indices by calculating the number of days since the first date in the dataset.
     """
-    return (date_series_new - date_series[0]).values // time_resolution
+    return ((date_series_new - date_series[0]).days // time_resolution).astype(int)
